@@ -10,7 +10,7 @@
     <div>
         <p><b>れんぞく検索リンク</b></p>
         <div class="pl-5 pt-2 pb-3">
-            <x-button class="px-25" href={{ $domain }}?site=bing&type=news&unit=5&max=6&now=1">Daily検索</x-button>
+            <x-button class="px-25" href="{{ $domain }}?site=bing&type=news&unit=5&max=6&now=1">Daily検索</x-button>
         </div >
         <div class="pl-5 pt-2 pb-3">
             <x-button href="{{ $domain }}?site=bing&type=search&unit=2&max=1&now=1">Bing 2検索</x-button>
