@@ -1,11 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
+
     @php
-        $domain = "https://pokka-apps.pixelumcraft.com/rewards"
-        <!-- 開発用 -->
-        <!-- $domain = "http://localhost:8000/rewards" -->
+        // .envファイルからURLを取得（開発環境と本番環境で切り替えるため）
+        $domain = config('app.rewards_url');
     @endphp
+
     <div>
         <p><b>れんぞく検索リンク</b></p>
         <div class="pl-5 pt-2 pb-3">
