@@ -37,15 +37,20 @@ class RewardsController extends Controller
 ;
         }
 
+        // 検索用URLを作成
         $keywords = $this->getKeywords($unit);
         $urls = $this->genarate_urls($site, $type, $keywords);
+
+        // 検索終了後の遷移先URLを作成
+        // .envファイルからURL（共通部分）を取得（開発環境と本番環境で切り替えるため.envを利用）
+        $domain = config('app.rewards_url');
         if ($now < $max) {
             $next = $now + 1;
-            $nextLink = "http://localhost:8000/rewards?site=".$site."&type=".$type."&unit=".$unit."&max=".$max."&now=".$next;
+            $nextLink = $domain . "?site=".$site."&type=".$type."&unit=".$unit."&max=".$max."&now=".$next;
         } elseif ($site == "bing" && $max == 6) {
-            $nextLink = "http://localhost:8000/rewards?site=rakuten&unit=3&max=10&now=1";
+            $nextLink = $domain . "?site=rakuten&unit=3&max=10&now=1";
         } else {
-            $nextLink = "http://localhost:8000/rewards/home";
+            $nextLink = $domain . "/home";
         }
         
         // dd($keywords, $nextLink);
