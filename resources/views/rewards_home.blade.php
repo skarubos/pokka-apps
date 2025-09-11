@@ -18,11 +18,11 @@
             <x-button href="{{ $domain }}?site=bing&type=news&unit=2&max=1&now=1">NEWS 2検索</x-button>
             <x-button href="{{ $domain }}?site=bing&type=news&unit=5&max=1&now=1">NEWS 5検索</x-button>
         </div >
-        <div class="pl-5 pb-5">
+        <!-- <div class="pl-5 pb-5">
             <x-button href="{{ $domain }}?site=rakuten&unit=2&max=1&now=1">楽天 2検索</x-button>
             <x-button href="{{ $domain }}?site=rakuten&unit=2&max=2&now=1">楽天 3x10検索</x-button>
             <x-button href="https://websearch.rakuten.co.jp/Web?qt=明日の天気&ref=top_r&col=OW" target="_blank">楽天 「明日の天気」</x-button>
-        </div >
+        </div > -->
     </div>
     <div class="pb-10">
         <p><b>公式リンク</b></p>
@@ -38,3 +38,14 @@
     <p>※注意：複数のタブが順々に開きます！</p>
     <p>※ブラウザとその設定によっては開かない場合があります（ポップアップを許可=ブロック解除すれば動作する場合があります）。</p>
 @endsection
+
+@push('scripts')
+<script>
+    document.getElementById('toggle-buttons').addEventListener('click', function () {
+        const container = document.getElementById('button-container');
+        const isHidden = container.style.display === 'none';
+        container.style.display = isHidden ? 'block' : 'none';
+        this.textContent = isHidden ? '▲ 閉じる' : '▼ もっと見る';
+    });
+</script>
+@endpush

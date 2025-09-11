@@ -47,11 +47,19 @@ class RewardsController extends Controller
         if ($now < $max) {
             $next = $now + 1;
             $nextLink = $domain . "?site=".$site."&type=".$type."&unit=".$unit."&max=".$max."&now=".$next;
-        } elseif ($site == "bing" && $max == 6) {
-            $nextLink = $domain . "?site=rakuten&unit=3&max=10&now=1";
         } else {
             $nextLink = $domain . "/home";
         }
+
+        // 楽天検索を連続で行う分岐ありの場合
+        // if ($now < $max) {
+        //     $next = $now + 1;
+        //     $nextLink = $domain . "?site=".$site."&type=".$type."&unit=".$unit."&max=".$max."&now=".$next;
+        // } elseif ($site == "bing" && $max == 6) {
+        //     $nextLink = $domain . "?site=rakuten&unit=3&max=10&now=1";
+        // } else {
+        //     $nextLink = $domain . "/home";
+        // }
         
         // dd($keywords, $nextLink);
 
