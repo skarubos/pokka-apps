@@ -123,6 +123,6 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
-    'rewards_url' => env('REWARDS_URL', 'https://localhost:8000/rewards'),
+    'my_domain' => env('MY_DOMAIN', 'http://localhost:8000'),
 
 ];

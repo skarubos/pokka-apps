@@ -8,6 +8,16 @@ use Illuminate\Support\Facades\DB;
 
 class RewardsController extends Controller
 {
+    public function test()
+    {
+        $data = Keyword::where('id', 1)->first();
+
+        return view('test', [
+            'title' => 'TEST',
+            'data' => $data,
+        ]);
+    }
+
     public function index(Request $request)
     {
         // 検索実行後の待ち時間をここで変更できます（ミリ秒で指定）

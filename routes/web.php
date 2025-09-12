@@ -1,8 +1,8 @@
 <?php
 
 use App\Http\Controllers\RewardsController;
-use App\Http\Controllers\ShoppingController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
 
 Route::get('/', function () {
     return view('welcome');
@@ -11,4 +11,4 @@ Route::get('/', function () {
 Route::get('/rewards', [RewardsController::class, 'index'])->name('rewards');
 Route::view('/rewards/home', 'rewards_home', ['title' => 'Rewards Automation']);
 
-Route::get('/shopping', [ShoppingController::class, 'index'])->name('shopping');
+Route::get('/test', [RewardsController::class, 'test']);
