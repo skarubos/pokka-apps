@@ -14,7 +14,7 @@ class WeatherRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'city' => ['required', 'string', 'max:80'], // 例: "Kofu,JP" や "Tokyo,JP"
+            'city' => ['required', 'string', 'max:32'], // 例: "Kofu,JP" や "Tokyo,JP"
         ];
     }
 

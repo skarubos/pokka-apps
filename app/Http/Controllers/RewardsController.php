@@ -55,22 +55,23 @@ class RewardsController extends Controller
 
         // 検索終了後の遷移先URLを作成
         // .envファイルからURL（共通部分）を取得（開発環境と本番環境で切り替えるため.envを利用）
-        $domain = config('app.rewards_url');
+        $domain = config('app.my_domain');
+        $rewards_url = $domain . "/rewards";
         if ($now < $max) {
             $next = $now + 1;
-            $nextLink = $domain . "?random=".$random."site=".$site."&type=".$type."&unit=".$unit."&max=".$max."&now=".$next;
+            $nextLink = $rewards_url . "?random=".$random."&site=".$site."&type=".$type."&unit=".$unit."&max=".$max."&now=".$next;
         } else {
-            $nextLink = $domain . "/rewards/home";
+            $nextLink = $rewards_url . "/home";
         }
 
         // 楽天検索を連続で行う分岐ありの場合
         // if ($now < $max) {
         //     $next = $now + 1;
-        //     $nextLink = $domain . "?site=".$site."&type=".$type."&unit=".$unit."&max=".$max."&now=".$next;
+        //     $nextLink = $domain . "?random=".$random."&site=".$site."&type=".$type."&unit=".$unit."&max=".$max."&now=".$next;
         // } elseif ($site == "bing" && $max == 6) {
-        //     $nextLink = $domain . "?site=rakuten&unit=3&max=10&now=1";
+        //     $nextLink = $domain . "?random=".$random."site=rakuten&unit=3&max=10&now=1";
         // } else {
-        //     $nextLink = $domain . "/home";
+        //     $nextLink = $domain . "/rewards/home";
         // }
         
         // dd($keywords, $nextLink);

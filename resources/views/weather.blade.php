@@ -15,7 +15,7 @@
                 class="border rounded px-3 py-2 w-full"
                 required
             />
-            <x-button type="submit" class="px-20 whitespace-nowrap">取得</x-button>
+            <x-button type="submit" class="!px-25 !my-0 text-lg text-center cursor-pointer whitespace-nowrap">取得</x-button>
         </form>
 
         @if ($errors->any())
@@ -28,11 +28,11 @@
             </div>
         @endif
 
-        @if ($error)
+        <!-- @if ($error)
             <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 p-3 rounded mb-4">
                 {{ $error }}
             </div>
-        @endif
+        @endif -->
 
         @if ($data)
             @php
@@ -53,25 +53,25 @@
                     @endif
                     <div>
                         <div class="text-xl font-medium">{{ $cityName }}</div>
-                        <div class="text-gray-600">{{ $weather }}</div>
+                        <div class="text-gray-400">{{ $weather }}</div>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4 mt-4">
                     <div class="p-3 rounded">
-                        <div class="text-sm text-gray-500">気温</div>
+                        <div class="text-sm text-gray-400">気温</div>
                         <div class="text-lg">{{ $temp }} ℃</div>
                     </div>
                     <div class="p-3 rounded">
-                        <div class="text-sm text-gray-500">体感温度</div>
+                        <div class="text-sm text-gray-400">体感温度</div>
                         <div class="text-lg">{{ $feels }} ℃</div>
                     </div>
                     <div class="p-3 rounded">
-                        <div class="text-sm text-gray-500">湿度</div>
+                        <div class="text-sm text-gray-400">湿度</div>
                         <div class="text-lg">{{ $humidity }} %</div>
                     </div>
                     <div class="p-3 rounded">
-                        <div class="text-sm text-gray-500">風速</div>
+                        <div class="text-sm text-gray-400">風速</div>
                         <div class="text-lg">{{ $wind }} m/s</div>
                     </div>
                 </div>

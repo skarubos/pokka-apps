@@ -49,10 +49,10 @@
                 Sleep(wt);
             }
         }
-        // 全てのタブを閉じる（random=1の場合、5ループ目に待機時間挿入）
+        // 全てのタブを閉じる（random=1の場合、3ループ目に待機時間挿入）
         tabs.forEach(function(tab) {
-            if (random ==1) {
-                interval = nextLink.slice(-1) === '5' ? 7000 : 1000;
+            if (random == 1) {
+                interval = nextLink.slice(-1) === '4' ? 7000 : 1000;
             } else {
                 interval = 1000;
             }
@@ -60,10 +60,12 @@
         });
     }
 
+    // ページが読み込まれたら実行
     window.onload = function() {
         OpenLinks(urls);
         setTimeout(() => {
-            // console.log(nextLink);
+            console.log(nextLink);
+            debugger;
             window.location.href = nextLink;
         }, 1500);
     }
