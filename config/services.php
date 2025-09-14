@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'openweather' => [
+        'key'   => env('OWM_API_KEY'),
+        'base'  => env('OWM_BASE_URL', 'https://api.openweathermap.org/data/2.5'),
+        'lang'  => env('OWM_DEFAULT_LANG', 'ja'),
+        'units' => env('OWM_DEFAULT_UNITS', 'metric'),
+    ],
 ];

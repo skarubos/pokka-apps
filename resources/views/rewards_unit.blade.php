@@ -11,6 +11,7 @@
     let urls = @json($urls);
     let nextLink = "{!! $nextLink !!}";
     let wt = {{ $waiting }};
+    let random = {{ $random }};
 
     console.log(urls);
     console.log(nextLink);
@@ -24,17 +25,38 @@
     function OpenLinks(urls){
         let tabs = [];
         let href;
+
+        // ランダム待機時間のパラメータ設定
+        const min = wt; // 最小値（ミリ秒）
+        const range = 1000;   // ランダム幅（ミリ秒）
+        const step = 100; // 刻み幅（ミリ秒）
+
         // 順番に開く
-        for (let step = 0; step < urls.length; step++) {
-            href = urls[step];
+        for (let i = 0; i < urls.length; i++) {
+            href = urls[i];
             console.log(href);
-            let tab = window.open(href, step + 1);
+            let tab = window.open(href, i + 1);
             tabs.push(tab);
-            Sleep(wt);
+            // ランダム秒数の挿入
+            if (random == 1) {
+                // 刻み幅ごとの候補数を計算
+                const stepsCount = range / step + 1;
+
+                // ランダムなインデックスを選び、ミリ秒に変換
+                const randomMs = min + Math.floor(Math.random() * stepsCount) * step;
+                Sleep(randomMs);
+            } else {
+                Sleep(wt);
+            }
         }
-        // 2秒後に閉じる
+        // 全てのタブを閉じる（random=1の場合、5ループ目に待機時間挿入）
         tabs.forEach(function(tab) {
-            setTimeout(() => tab.close(), 1000);
+            if (random ==1) {
+                interval = nextLink.slice(-1) === '5' ? 7000 : 1000;
+            } else {
+                interval = 1000;
+            }
+            setTimeout(() => tab.close(), interval);
         });
     }
 

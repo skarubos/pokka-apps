@@ -19,7 +19,8 @@
                 <ul class="flex space-x-4">
                     <li><a href="{{ url('/') }}" class="hover:underline">Home</a></li>
                     <li><a href="{{ url('/rewards/home') }}" class="hover:underline">Rewards</a></li>
-                    <li><a href="{{ url('/about') }}" class="hover:underline">About</a></li>
+                    <li><a href="{{ url('/weather') }}" class="hover:underline">Weather</a></li>
+                    <li><a href="{{ url('/test') }}" class="hover:underline">About</a></li>
                 </ul>
             </nav>
         </div>

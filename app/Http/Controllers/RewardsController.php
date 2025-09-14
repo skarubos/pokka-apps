@@ -26,6 +26,7 @@ class RewardsController extends Controller
 
         // バリデーション
         $validated = $request->validate([
+            'random' => ['required', 'integer', 'between:0,1'],
             'unit' => ['required', 'integer', 'between:1,5'],
             'max'  => ['required', 'integer', 'between:1,10'],
             'now'  => ['required', 'integer', 'min:1', 'lte:max'], // max以下
@@ -33,6 +34,7 @@ class RewardsController extends Controller
             // type: siteがbingのとき必須 & search または news のみ
             'type' => ['required_if:site,bing', 'in:search,news', 'nullable'],
         ]);
+        $random = $validated['random'];
         $unit = $validated['unit'];
         $max  = $validated['max'];
         $now  = $validated['now'];
@@ -56,9 +58,9 @@ class RewardsController extends Controller
         $domain = config('app.rewards_url');
         if ($now < $max) {
             $next = $now + 1;
-            $nextLink = $domain . "?site=".$site."&type=".$type."&unit=".$unit."&max=".$max."&now=".$next;
+            $nextLink = $domain . "?random=".$random."site=".$site."&type=".$type."&unit=".$unit."&max=".$max."&now=".$next;
         } else {
-            $nextLink = $domain . "/home";
+            $nextLink = $domain . "/rewards/home";
         }
 
         // 楽天検索を連続で行う分岐ありの場合
@@ -75,6 +77,7 @@ class RewardsController extends Controller
 
         return view('rewards_unit', [
             'title' => 'UNIT',
+            'random' => $random,
             'waiting' => $waiting,
             'urls' => $urls,
             'nextLink' => $nextLink
