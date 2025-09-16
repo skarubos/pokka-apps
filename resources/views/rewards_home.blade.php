@@ -41,7 +41,7 @@
             <x-button href="https://rewards.bing.com/" target="_blank">Microsoft Rewards</x-button>
             <x-button href="https://rewards.bing.com/pointsbreakdown" target="_blank">MR ポイント確認</x-button>
             <br>
-            <x-button ref="hthtps://websearch.rakuten.co.jp/" target="_blank">楽天検索 Home</x-button>
+            <x-button href="https://websearch.rakuten.co.jp/" target="_blank">楽天検索 Home</x-button>
             <x-button href="https://get.point.rakuten.co.jp/" target="_blank">楽天ポイントコード入力</x-button>
         </div>
     </div>

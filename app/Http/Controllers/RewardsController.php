@@ -77,7 +77,6 @@ class RewardsController extends Controller
         // dd($keywords, $nextLink);
 
         return view('rewards_unit', [
-            'title' => 'UNIT',
             'random' => $random,
             'waiting' => $waiting,
             'urls' => $urls,
