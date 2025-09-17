@@ -20,11 +20,25 @@
                     <li><a href="{{ url('/') }}" class="hover:underline">Home</a></li>
                     <li><a href="{{ url('/rewards/home') }}" class="hover:underline">Rewards</a></li>
                     <li><a href="{{ url('/weather') }}" class="hover:underline">Weather</a></li>
-                    <li><a href="{{ url('/test') }}" class="hover:underline">About</a></li>
+                    <li><a href="{{ url('/myapps') }}" class="hover:underline">AppList</a></li>
                 </ul>
             </nav>
         </div>
     </header>
+
+    {{-- フラッシュメッセージ --}}
+    @if (session('success'))
+        <div class="rounded bg-green-800 text-green-100 px-5 py-2">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="rounded bg-red-900 text-red-100 px-5 py-2">
+            {{ session('error') }}
+        </div>
+    @endif
+
 
     {{-- ページごとの内容 --}}
     <main class="container mx-auto p-6">
