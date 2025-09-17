@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('my_apps', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('sort_order');
-            $table->string('name', 16);
+            $table->string('name', 32);
             $table->string('url');
             $table->string('explanation');
             $table->unsignedTinyInteger('type');
