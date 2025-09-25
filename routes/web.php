@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\MyAppsController;
 use App\Http\Controllers\RewardsController;
+use App\Http\Controllers\StartPageController;
 use App\Http\Controllers\WeatherController;
 use Illuminate\Support\Facades\Route;
 
@@ -23,3 +24,7 @@ Route::get('/myapps/sort', [MyAppsController::class, 'sort_show'])->name('myapps
 Route::post('/myapps/sort', [MyAppsController::class, 'sort']);
 Route::put('/myapps/{id}', [MyAppsController::class, 'update'])->name('myapps.update');
 Route::delete('/myapps/{id}', [MyAppsController::class, 'destroy'])->name('myapps.destroy');
+
+Route::get('/startpage', [StartPageController::class, 'index'])->name('startpage');
+Route::post('/startpage/sort', [StartPageController::class, 'sort'])->name('bookmark.sort');
+Route::post('/startpage/update', [StartPageController::class, 'update'])->name('bookmark.update');
