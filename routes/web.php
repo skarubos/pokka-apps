@@ -25,6 +25,9 @@ Route::post('/myapps/sort', [MyAppsController::class, 'sort']);
 Route::put('/myapps/{id}', [MyAppsController::class, 'update'])->name('myapps.update');
 Route::delete('/myapps/{id}', [MyAppsController::class, 'destroy'])->name('myapps.destroy');
 
-Route::get('/startpage', [StartPageController::class, 'index'])->name('startpage');
+Route::get('/startpage', [StartPageController::class, 'index'])->name('bookmark');
 Route::post('/startpage/sort', [StartPageController::class, 'sort'])->name('bookmark.sort');
+Route::get('/startpage/form', [StartPageController::class, 'form'])->name('bookmark.form');
+Route::post('/startpage/create', [StartPageController::class, 'create'])->name('bookmark.create');
 Route::post('/startpage/update', [StartPageController::class, 'update'])->name('bookmark.update');
+Route::delete('/startpage/{id}', [StartPageController::class, 'destroy'])->name('bookmark.destroy');
