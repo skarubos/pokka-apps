@@ -8,6 +8,13 @@ use Illuminate\Support\Facades\Log;
 
 class MyAppsController extends Controller
 {
+    public function test()
+    {
+        return view('test', [
+            'title' => 'TEST',
+        ]);
+    }
+
     public function index()
     {
         $data = MyApp::orderBy('sort_order', 'asc')

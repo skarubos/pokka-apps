@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Controller;
 use App\Http\Controllers\MyAppsController;
 use App\Http\Controllers\RewardsController;
 use App\Http\Controllers\StartPageController;
@@ -15,7 +14,7 @@ Route::get('/rewards', [RewardsController::class, 'index'])->name('rewards');
 Route::view('/rewards/home', 'rewards_home', ['title' => 'Rewards Automation']);
 
 Route::middleware('auth')->group(function () {
-    Route::get('/test', [Controller::class, 'test']);
+    Route::get('/test', [MyAppsController::class, 'test']);
 });
 
 Route::get('/weather', [WeatherController::class, 'index'])->name('weather.index');
