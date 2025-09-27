@@ -13,7 +13,9 @@ Route::get('/', function () {
 Route::get('/rewards', [RewardsController::class, 'index'])->name('rewards');
 Route::view('/rewards/home', 'rewards_home', ['title' => 'Rewards Automation']);
 
-Route::get('/test', [RewardsController::class, 'test']);
+Route::middleware('auth')->group(function () {
+    Route::get('/test', [RewardsController::class, 'test']);
+});
 
 Route::get('/weather', [WeatherController::class, 'index'])->name('weather.index');
 Route::post('/weather', [WeatherController::class, 'show'])->name('weather.show');

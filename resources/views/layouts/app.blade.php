@@ -7,26 +7,51 @@
     <title>{{ $title ?? 'Pakka App' }}</title>
     @vite('resources/css/app.css') {{-- TailwindやCSSビルド用 --}}
 </head>
-<body class="bg-gray-900 text-gray-300">
+<body class="bg-gray-900 text-white">
 
-    {{-- 共通ヘッダー部分 --}}
-    <header class="bg-gray-800 text-white p-4">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold">
-                {{ $title ?? 'My Pakka App' }}
-            </h1>
-            <nav>
-                <ul class="flex space-x-4">
-                    <li><a href="{{ url('/') }}" class="hover:underline">Home</a></li>
-                    <li><a href="{{ url('/rewards/home') }}" class="hover:underline">Rewards</a></li>
-                    <li><a href="{{ url('/weather') }}" class="hover:underline">Weather</a></li>
-                    <li><a href="{{ url('/myapps') }}" class="hover:underline">AppList</a></li>
-                </ul>
-            </nav>
+    <!-- 共通ヘッダー部分 -->
+    <header class="bg-gray-800 text-white">
+        <div class="container mx-auto px-4 grid grid-cols-6 items-center">
+            <!-- 左側 -->
+            <div class="col-span-5 flex py-3 items-center justify-between">
+                <!-- タイトル -->
+                <h1 class="text-xl font-bold">
+                    {{ $title ?? 'My Pakka App' }}
+                </h1>
+
+                <!-- メニュー一覧 -->
+                <nav>
+                    <ul class="flex space-x-4">
+                        <li><a href="{{ url('/') }}" class="hover:underline">Home</a></li>
+                        <li><a href="{{ url('/rewards/home') }}" class="hover:underline">Rewards</a></li>
+                        <li><a href="{{ url('/weather') }}" class="hover:underline">Weather</a></li>
+                        <li><a href="{{ url('/myapps') }}" class="hover:underline">AppList</a></li>
+                        <div class="inline-flex h-full pl-5 bg-gray-700 rounded-xl">
+                        </div>
+                    </ul>
+                </nav>
+            </div>
+
+            <!-- 右側（ログイン情報） -->
+            <div class="col-span-1 flex h-full items-center justify-center space-x-3 bg-gray-700">
+                @auth
+                    <span>{{ Auth::user()->name }}</span>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="ml-3 px-2 cursor-pointer hover:underline">
+                            ログアウト
+                        </button>
+                    </form>
+                @else
+                    <a href="{{ route('login') }}" class="hover:underline">ログイン</a>
+                    <a href="{{ route('register') }}" class="hover:underline">新規登録</a>
+                @endauth
+            </div>
         </div>
     </header>
 
-    {{-- フラッシュメッセージ --}}
+
+    <!-- フラッシュメッセージ -->
     @if (session('success'))
         <div id="flash-success"
             class="relative flex items-center justify-between
@@ -55,7 +80,7 @@
     @endif
 
 
-    {{-- ページごとの内容 --}}
+    <!-- ページごとの内容 -->
     <main class="container mx-auto p-6">
         @yield('content')
     </main>

@@ -125,4 +125,5 @@ return [
 
     'my_domain' => env('MY_DOMAIN', 'http://localhost:8000'),
 
+
 ];

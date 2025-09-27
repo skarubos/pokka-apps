@@ -21,6 +21,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // デバック用の設定
-        Model::shouldBeStrict(! $this->app->isProduction());
+        Model::shouldBeStrict(! app()->environment('production'));
+        // Model::shouldBeStrict(! $this->app->isProduction());
     }
 }
