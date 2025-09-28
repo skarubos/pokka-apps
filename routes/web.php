@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DokoGameController;
 use App\Http\Controllers\MyAppsController;
 use App\Http\Controllers\RewardsController;
 use App\Http\Controllers\StartPageController;
@@ -16,6 +17,9 @@ Route::view('/rewards/home', 'rewards_home', ['title' => 'Rewards Automation']);
 Route::middleware('auth')->group(function () {
     Route::get('/test', [MyAppsController::class, 'test']);
 });
+
+Route::get('/doko', [DokoGameController::class, 'test'])->name('doko.test');
+Route::post('/doko/answer', [DokoGameController::class, 'check'])->name('doko.answer');
 
 Route::get('/weather', [WeatherController::class, 'index'])->name('weather.index');
 Route::post('/weather', [WeatherController::class, 'show'])->name('weather.show');

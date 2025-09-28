@@ -41,4 +41,8 @@ return [
         'lang'  => env('OWM_DEFAULT_LANG', 'ja'),
         'units' => env('OWM_DEFAULT_UNITS', 'metric'),
     ],
+
+    'google_maps' => [
+        'api_key' => env('GOOGLE_MAPS_API_KEY'),
+    ],
 ];
