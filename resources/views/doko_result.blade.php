@@ -1,21 +1,53 @@
 @extends('layouts.app')
 
 @section('content')
-    <div id="answer-container" class="items-end text-center text-2xl">
-        <div class="inline-flex py-1 px-6 mr-10 bg-gray-700 rounded-full">
-            <p class="">Stage:<span class="text-3xl font-bold"> {{ $stage }} </span>/ 5</p>
+    <div class="items-center text-center text-2xl">
+        <h2 class="text-2xl font-bold mb-4">ゲーム結果</h2>
+
+        {{-- ゲーム概要 --}}
+        <div class="mb-6">
+            <p><strong>ゲームID:</strong> {{ $myGame->id }}</p>
+            <p><strong>ユーザーID:</strong> {{ $myGame->user_id }}</p>
+            <p><strong>合計スコア:</strong> {{ $myGame->result }}</p>
         </div>
-        <p class="inline-flex text-5xl font-bold">{{ $score }}</p>
-        <p class="inline-flex px-3"> / 500 点</p>
-        <p class="inline-flex px-3">（誤差：{{ $distance }} km）</p>
-        <div id="map" style="margin-top:3px; height:500px; width:100%;"></div>
-        <a href="{{ route('doko.test') }}" target="_self"
-            class="flex fixed right-5 top-1/2 -translate-y-1/2
-                items-center justify-center
-                w-25 h-40 rounded-xl cursor-pointer
-                bg-white/30 hover:bg-white/60 transition">
-            次へ
-        </a>
+
+        {{-- 各ステージの結果一覧 --}}
+        <table class="table-auto border-collapse border border-gray-400 w-full mb-6">
+            <thead>
+                <tr class="bg-gray-200">
+                    <th class="border border-gray-400 px-4 py-2">ステージ</th>
+                    <th class="border border-gray-400 px-4 py-2">ロケーションID</th>
+                    <th class="border border-gray-400 px-4 py-2">距離 (km)</th>
+                    <th class="border border-gray-400 px-4 py-2">スコア</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($logs as $log)
+                    <tr>
+                        <td class="border border-gray-400 px-4 py-2 text-center">{{ $log->stage }}</td>
+                        <td class="border border-gray-400 px-4 py-2 text-center">{{ $log->location_id }}</td>
+                        <td class="border border-gray-400 px-4 py-2 text-center">
+                            {{ $log->distance !== null ? $log->distance : '-' }}
+                        </td>
+                        <td class="border border-gray-400 px-4 py-2 text-center">
+                            {{ $log->score !== null ? $log->score : '-' }}
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+
+        {{-- 戻るボタンや再挑戦リンク --}}
+        <div class="flex space-x-4">
+            <a href="{{ route('game.start') }}" 
+            class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                新しいゲームを始める
+            </a>
+            <a href="{{ route('home') }}" 
+            class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
+                ホームに戻る
+            </a>
+        </div>
     </div>
 @endsection
 

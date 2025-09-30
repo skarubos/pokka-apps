@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         $this->call(KeywordsTableSeeder::class);
+        $this->call(LocationsTableSeeder::class);
 
         // MuAppsに10件作成（sort_orderは仮値0）
         MyApp::factory()->count(10)->create();

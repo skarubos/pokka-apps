@@ -12,7 +12,7 @@
                     data-url="{{ $bookmark->link_url }}"
                     data-priority="{{ $bookmark->priority }}"
                     data-img-name="{{ $bookmark->img_name }}" class="">
-                    <a href="{{ $bookmark->link_url }}" target="_blank" 
+                    <a href="{{ $bookmark->link_url }}"
                         class="w-full py-3 lg:px-2 flex flex-col items-center">
                         <img src="{{ asset('storage/images/' . $bookmark->img_name) }}"
                             alt="icon"
@@ -28,7 +28,7 @@
                     </a>
                 </li>
             @empty
-                <li class="text-lg text-gray-300 p-5">-- まだ登録がありません --</li>
+                <li class="text-lg text-gray-900 p-5">-- まだ登録がありません --（右側の[+]ボタンから登録できます。）</li>
             @endforelse
         </ul>
 

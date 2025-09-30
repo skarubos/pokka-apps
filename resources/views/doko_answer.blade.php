@@ -20,6 +20,8 @@
         <!-- 回答フォーム -->
         <form id="answer-form" method="POST" action="{{ route('doko.answer') }}" class="flex flex-col items-center space-y-2">
             @csrf
+            <input type="hidden" name="game_id" value="{{ $myGame->id }}">
+            <input type="hidden" name="stage" value="{{ $myGame->progress }}">
             <input type="hidden" name="lat" id="answer-lat">
             <input type="hidden" name="lng" id="answer-lng">
             <button type="submit"
@@ -52,14 +54,18 @@
 @push('scripts')
 <script async defer src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.api_key') }}&callback=initMaps&v=weekly"></script>
 <script>
-    function initMaps() {
+
+    window.initMaps = function() {
         initMap();
         initAnswerMap();
-    }
+    };
     // ここから問題用マップ
-    const latQ = {{ $data['latQ'] }};
-    const lngQ = {{ $data['lngQ'] }};
-    const delta = {{ $data['delta'] }};
+    const question = @json($location);
+    const latQ = parseFloat(question.lat);
+    const lngQ = parseFloat(question.lng);
+    const delta = {{ $delta }};
+    console.log(question);
+    console.log("Question Location:", latQ, lngQ, delta);
     function initMap() {
         const center = { lat: latQ, lng: lngQ };
 

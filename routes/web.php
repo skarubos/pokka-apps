@@ -16,10 +16,11 @@ Route::view('/rewards/home', 'rewards_home', ['title' => 'Rewards Automation']);
 
 Route::middleware('auth')->group(function () {
     Route::get('/test', [MyAppsController::class, 'test']);
-});
 
-Route::get('/doko', [DokoGameController::class, 'test'])->name('doko.test');
-Route::post('/doko/answer', [DokoGameController::class, 'check'])->name('doko.answer');
+    Route::get('/doko/home', [DokoGameController::class, 'index'])->name('doko.home');
+    Route::get('/doko', [DokoGameController::class, 'test'])->name('doko.test');
+    Route::post('/doko/answer', [DokoGameController::class, 'check'])->name('doko.answer');
+});
 
 Route::get('/weather', [WeatherController::class, 'index'])->name('weather.index');
 Route::post('/weather', [WeatherController::class, 'show'])->name('weather.show');
