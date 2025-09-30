@@ -18,7 +18,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/test', [MyAppsController::class, 'test']);
 
     Route::get('/doko/home', [DokoGameController::class, 'index'])->name('doko.home');
-    Route::get('/doko', [DokoGameController::class, 'test'])->name('doko.test');
+    Route::get('/doko/start', [DokoGameController::class, 'start'])->name('doko.start');
+    Route::get('/doko/next', [DokoGameController::class, 'next'])->name('doko.next');
     Route::post('/doko/answer', [DokoGameController::class, 'check'])->name('doko.answer');
 });
 

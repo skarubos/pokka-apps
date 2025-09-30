@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Services\DokoGameService;
-use App\Models\Location;
 use App\Models\Game;
 use App\Models\GameLog;
 use Illuminate\Http\Request;
@@ -23,16 +22,53 @@ class DokoGameController extends Controller
         return view('doko_home');
     }
     
-    public function test()
+    public function start()
     {
         // ステージ数
         $totalStages = 5;
 
-        // ゲームを準備
+        // 既存の進行中ゲームがあれば削除
+        Game::where('user_id', Auth::id())
+            ->where('progress', '!=', -1)
+            ->delete();
+
+        // 新しいゲームを準備
         $myGame = $this->dokoGameService->setGame($totalStages);
 
-        // progress が -1 なら結果ページへ
+        // ロケーションを取得
+        $location = $this->dokoGameService->getLocation($myGame->id, $myGame->progress);
+
+        return view('doko_answer', [
+            'myGame' => $myGame,
+            'location' => $location,
+            'delta' => 0.02,
+        ]);
+
+    }
+
+    public function next()
+    {
+        // ステージ数
+        $totalStages = 5;
+
+        // 現在進行中のゲームを取得
+        $myGame = Game::where('user_id', Auth::id())
+            ->where('progress', '!=', -1)
+            ->first();
+        if (!$myGame) {
+            // 進行中のゲームがない場合、直近の終了ゲームを取得
+            $myGame = Game::where('user_id', Auth::id())
+                ->where('progress', -1)
+                ->orderByDesc('updated_at')
+                ->first();
+        }
+        if (!$myGame) {
+            // ゲームが存在しない場合
+            return redirect()->route('doko.home');
+        }
+
         if ($myGame->progress == -1) {
+            // progress が -1 なら結果ページへ
             // ゲームに属するログを取得
             $logs = GameLog::where('game_id', $myGame->id)->get();
 
@@ -40,18 +76,17 @@ class DokoGameController extends Controller
                 'myGame' => $myGame,
                 'logs'   => $logs,
             ]);
+        } elseif ($myGame->progress >= 1 && $myGame->progress <= $totalStages) {
+            // 次の問題へ進行
+            // ロケーションを取得
+            $location = $this->dokoGameService->getLocation($myGame->id, $myGame->progress);
+
+            return view('doko_answer', [
+                'myGame' => $myGame,
+                'location' => $location,
+                'delta' => 0.02,
+            ]);
         }
-
-        // ロケーションを取得
-        $location = $this->dokoGameService->getLocation($myGame->id, $myGame->progress);
-
-        // dd($location);
-
-        return view('doko_answer', [
-            'myGame' => $myGame,
-            'location' => $location,
-            'delta' => 0.02,
-        ]);
     }
 
     public function check(Request $request)
@@ -60,6 +95,11 @@ class DokoGameController extends Controller
         $stage = $request->input('stage');
         $latA = $request->input('lat');
         $lngA = $request->input('lng');
+
+        // 緯度・経度が未指定の場合、再度回答ページへ
+        if (!$latA || !$lngA) {
+            return redirect()->route('doko.next');
+        }
 
         $result = $this->dokoGameService->setResult($gameId, $stage, $latA, $lngA);
 

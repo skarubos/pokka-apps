@@ -12,11 +12,17 @@
             全体を俯瞰する？ズームして何かを見つける？<br>
             5回のチャンスで高得点を狙おう！
         </p>
-        <a href="{{ route('doko.test') }}" target="_self"
+        <a href="{{ route('doko.start') }}" target="_self"
             class="flex items-center justify-center
                 w-60 h-30 rounded-xl cursor-pointer mt-12
                 bg-white/30 hover:bg-white/60 transition">
         <p class="text-2xl font-bold text-center">開始</p>
+        </a>
+        <a href="{{ route('doko.next') }}" target="_self"
+            class="flex items-center justify-center
+                w-60 h-30 rounded-xl cursor-pointer mt-12
+                bg-white/30 hover:bg-white/60 transition">
+        <p class="text-2xl font-bold text-center">再開</p>
         </a>
     </div>
 @endsection

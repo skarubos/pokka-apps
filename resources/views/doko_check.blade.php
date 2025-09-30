@@ -9,7 +9,7 @@
         <p class="inline-flex px-3"> / 500 点</p>
         <p class="inline-flex px-3">（誤差：{{ $distance }} km）</p>
         <div id="map" style="margin-top:3px; height:500px; width:100%;"></div>
-        <a href="{{ route('doko.test') }}" target="_self"
+        <a href="{{ route('doko.next') }}" target="_self"
             class="flex fixed right-5 top-1/2 -translate-y-1/2
                 items-center justify-center
                 w-25 h-40 rounded-xl cursor-pointer
