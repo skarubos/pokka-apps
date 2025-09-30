@@ -6,7 +6,7 @@
     <title>Start Page</title>
     @vite('resources/css/app.css') <!-- TailwindやCSSビルド用 -->
 </head>
-<body class="mx-auto py-6 px-6 lg:px-32"
+<body class="mx-auto py-6 px-6 lg:px-30"
         style="
         background: radial-gradient(circle, rgba(252,255,216,1) 0%, rgba(183,164,115,1) 100%);
         background-attachment: fixed;

@@ -55,7 +55,7 @@
         <!-- ページ最上部へスクロール -->
         <a href="#"
             onclick="window.scrollTo({top:0, behavior:'smooth'}); return false;"
-            class="flex group fixed right-5 top-1/4 -translate-y-1/2
+            class="flex group fixed right-5 bottom-[calc(50%+8rem)]
                     items-center justify-center
                     w-20 h-20">
             <svg class="w-20 h-20"
@@ -79,7 +79,7 @@
         <!-- ページ最下部へスクロール -->
         <a href="#"
             onclick="window.scrollTo({top:document.body.scrollHeight, behavior:'smooth'}); return false;"
-            class="flex group fixed right-5 bottom-1/4 translate-y-1/2
+            class="flex group fixed right-5 top-[calc(50%+8rem)]
                     items-center justify-center
                     w-20 h-20">
             <svg class="w-20 h-20"
