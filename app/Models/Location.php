@@ -13,4 +13,10 @@ class Location extends Model
         'lat',
         'lng',
     ];
+
+    // ロケーションは複数のゲームログを持つ
+    public function gameLogs()
+    {
+        return $this->hasMany(GameLog::class);
+    }
 }

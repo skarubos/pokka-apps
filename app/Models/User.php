@@ -45,4 +45,17 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    
+    // 1ユーザーは複数のゲームを持つ
+    public function games()
+    {
+        return $this->hasMany(Game::class);
+    }
+
+    // 1ユーザーは mybest_a として1つのゲームを参照（1:1 Non-Identifying）
+    public function mybestGame()
+    {
+        return $this->belongsTo(Game::class, 'mybest_a');
+    }
 }

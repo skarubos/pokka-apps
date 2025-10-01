@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use App\Models\Location;
 use App\Models\Game;
 use App\Models\GameLog;
@@ -13,10 +14,11 @@ class DokoGameService
      * 指定されたステージ数でゲームを新規作成して返す
      * 既存のゲームがあればそれを返却する
      */
-    public function setGame(int $stages)
+    public function setGame($gameMode)
     {
         // 既存のゲームを確認（progress != -1）
         $existingGame = Game::where('user_id', Auth::id())
+            ->where('game_mode_id', $gameMode->id)
             ->where('progress', '!=', -1)
             ->first();
 
@@ -25,10 +27,11 @@ class DokoGameService
             return $existingGame;
         } else {
             // 既存ゲームがない場合 → 新規作成
-            $locationId = Location::pluck('id')->random($stages)->toArray();
+            $locationId = Location::pluck('id')->random($gameMode->stage)->toArray();
 
             $game = Game::create([
                 'user_id'  => Auth::id(),
+                'game_mode_id' => $gameMode->id,
                 'progress' => 1,
             ]);
 
@@ -59,9 +62,9 @@ class DokoGameService
     }
 
     /**
-     * 2地点の距離とスコアを計算して記録し、その結果を返す
+     * 2地点の距離とスコアを計算して記録し、合計スコアを返す
      */
-    public function setResult(int $gameId, int $stage, float $latA, float $lngA)
+    public function setResult($gameMode, int $gameId, int $stage, float $latA, float $lngA)
     {
         // 設問の地点を取得
         $locationQ = $this->getLocation($gameId, $stage);
@@ -76,8 +79,17 @@ class DokoGameService
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
         $distance = $earthRadius * $c; // 距離 (km)
 
-        // スコア計算【得点 = (5000-D)/10）】
-        $score = max(0, (5000 - $distance)) / 10;
+        // スコア計算【得点 = (5000-D)/5）】
+        $ref = $gameMode->score_reference; // 参照基準距離 (km)
+        $max = $gameMode->score_max; // 最大スコア
+        $div = $ref / $max; // 1点あたりの距離 (km)
+        if ($gameMode->score_demerit) {
+            // 負の値も許容
+            $score = ($ref - $distance) / $div;
+        } else {
+            // 0以下は全て0点
+            $score = max(0, ($ref - $distance)) / $div;
+        }
 
         // 小数点以下を丸める
         $distance = round($distance, 3);
@@ -97,11 +109,44 @@ class DokoGameService
             'result' => $totalScore,
         ]);
 
-        return [
-            'distance' => $distance,
-            'score'    => $score,
-            'total'   => $totalScore,
-        ];
+        return $totalScore;
+    }
+
+    /**
+     * ユーザーの自己ベストを更新し、そのゲームIDを返す
+     *
+     * @param  int  $gameId
+     * @return int|null  自己ベストのゲームID、存在しなければ null
+     */
+    public function setMyBest(int $gameId): ?int
+    {
+        // 基準となるゲームを取得
+        $game = Game::find($gameId);
+        if (!$game) {
+            return null;
+        }
+
+        $userId = $game->user_id;
+        $gameModeId = $game->game_mode_id;
+
+        // progress = -1 かつ game_mode_id が一致する中で result が最大のレコードを取得
+        $bestGame = Game::where('user_id', $userId)
+            ->where('progress', -1)
+            ->where('game_mode_id', $gameModeId)
+            ->orderByDesc('result')
+            ->first();
+
+        if (!$bestGame) {
+            return null; // 対象レコードがない場合
+        }
+
+        // users.mybest_a を更新
+        $user = User::find($userId);
+        $user->mybest_a = $bestGame->id;
+        $user->save();
+
+        // 自己ベストだったゲームのIDを返す
+        return $bestGame->id;
     }
 
 

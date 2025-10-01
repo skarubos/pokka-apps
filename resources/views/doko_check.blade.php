@@ -1,36 +1,38 @@
-@extends('layouts.app')
+@extends('layouts.doko')
 
 @section('content')
-    <div id="answer-container" class="items-end text-center text-2xl">
+    <div class="items-end text-center text-2xl py-6">
         <div class="inline-flex py-1 px-6 mr-10 bg-gray-700 rounded-full">
-            <p class="">Stage:<span class="text-3xl font-bold"> {{ $stage }} </span>/ 5</p>
+            <p class="">Stage:<span class="text-3xl font-bold"> {{ $gameLog->stage }} </span>/ 5</p>
         </div>
-        <p class="inline-flex text-5xl font-bold">{{ $score }}</p>
-        <p class="inline-flex px-3"> / 500 点</p>
-        <p class="inline-flex px-3">（誤差：{{ $distance }} km）</p>
-        <div id="map" style="margin-top:3px; height:500px; width:100%;"></div>
+        <p class="inline-flex text-5xl text-white font-bold">{{ $gameLog->score }}</p>
+        <p class="inline-flex px-3"> / 1000 点</p>
+        <p class="inline-flex px-3">（誤差：{{ $gameLog->distance }} km）</p>
+    </div>
+    <div class="flex-1">
+        <div id="map" class="w-full h-full"></div>
         <a href="{{ route('doko.next') }}" target="_self"
             class="flex fixed right-5 top-1/2 -translate-y-1/2
                 items-center justify-center
                 w-25 h-40 rounded-xl cursor-pointer
-                bg-white/30 hover:bg-white/60 transition">
+                text-white text-xl font-bold
+                hover:outline-3 outline-offset-3 outline-gray-800
+                bg-gray-800/90 hover:bg-gray-800 transition">
             次へ
         </a>
     </div>
 @endsection
 
 @push('scripts')
-<script async defer
-    src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.api_key') }}&callback=initMap">
-</script>
 <script>
-    function initMap() {
+    window.initMap = function() {
         // Bladeから渡された座標をJS変数に変換
-        const latQ = {{ $latQ }};
-        const lngQ = {{ $lngQ }};
+        const question = @json($gameLog->location);
+        const latQ = parseFloat(question.lat);
+        const lngQ = parseFloat(question.lng);
         const latA = {{ $latA }};
         const lngA = {{ $lngA }};
-        const distance = "{{ $distance }} km";
+        const distance = "{{ $gameLog->distance }} km";
 
         const pointQ = { lat: latQ, lng: lngQ }; // 問題地点
         const pointA = { lat: latA, lng: lngA }; // 回答地点
@@ -94,5 +96,8 @@
         });
         infoWindow.open(map);
     }
+</script>
+<script async defer
+    src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.api_key') }}&callback=initMap">
 </script>
 @endpush
