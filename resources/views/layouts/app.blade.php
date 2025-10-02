@@ -25,6 +25,7 @@
                         <li><a href="{{ url('/') }}" class="hover:underline">Home</a></li>
                         <li><a href="{{ url('/rewards/home') }}" class="hover:underline">Rewards</a></li>
                         <li><a href="{{ url('/weather') }}" class="hover:underline">Weather</a></li>
+                        <li><a href="{{ url('/doko/home') }}" class="hover:underline">DokoGame</a></li>
                         <li><a href="{{ url('/myapps') }}" class="hover:underline">AppList</a></li>
                         <div class="inline-flex h-full pl-5 bg-gray-700 rounded-xl">
                         </div>

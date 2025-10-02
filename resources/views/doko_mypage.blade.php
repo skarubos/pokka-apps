@@ -6,37 +6,45 @@
             ログイン中： {{ $user->name }}
         </p>
     </div>
-        <div class="items-center text-center py-6 text-2xl">
-            @if($bestGame)
-                <div class="mb-6">
-                    <p>
-                        <strong>自己ベスト:</strong>
-                        <span class="text-5xl font-bold"> {{ $bestGame->result }} </span>
-                        / 5000
-                    </p>
-                </div>
-            @else
-                <div class="mb-6 italic">
-                    まだプレイしたことがありません。
-                </div>
-            @endif
-        </div>
+    <div class="items-center text-center py-6 text-2xl">
+        @if($bestGame)
+            <div class="mb-6">
+                <p>
+                    <strong>自己ベスト:</strong>
+                    <span class="text-5xl font-bold"> {{ $bestGame->result }} </span>
+                    / 5000
+                </p>
+            </div>
+        @else
+            <div class="mb-6 italic">
+                まだプレイしたことがありません。
+            </div>
+        @endif
+    </div>
 
-    <div id="answer-container" class="">
-        <div class="flex space-x-4 items-center justify-center text-2xl">
-            <a href="{{ route('doko.start') }}" 
-            class="flex items-center justify-center
-                w-60 h-30 rounded-xl cursor-pointer mt-12
-                bg-white/30 hover:bg-white/60 transition">
-                開始
-            </a>
-            <a href="{{ route('doko.next') }}" 
-            class="flex items-center justify-center
-                w-60 h-30 rounded-xl cursor-pointer mt-12
-                bg-white/30 hover:bg-white/60 transition">
-                再開
-            </a>
+    <div class="text-2xl">
+        <h2 class="text-center text-2xl font-bold mb-6">マップの種類を選択して開始</h2>
+        <div class="flex justify-center space-x-6 mb-6">
+            @foreach ($gameModes as $mode)
+                <a href="{{ route('doko.start', ['mode' => $mode->id]) }}"
+                    class="flex items-center justify-center
+                        w-64 h-20 rounded-xl cursor-pointer
+                        bg-white/30 hover:bg-white/50
+                        hover:outline-3 outline-offset-3 outline-white/50">
+                    <span class="text-xl font-bold">
+                        {{ $mode->name }}
+                    </span>
+                </a>
+            @endforeach
         </div>
+        <a href="{{ route('doko.next') }}" 
+            class="flex items-center m-auto justify-center
+                w-64 h-20 rounded-xl cursor-pointer
+                bg-white/30 hover:bg-white/50
+                hover:outline-3 outline-offset-3 outline-white/50">
+            再開
+        </a>
+        
     </div>
 @endsection
 

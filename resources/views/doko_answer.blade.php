@@ -60,11 +60,9 @@
 @push('scripts')
 <script>
     // 問題地点の座標と制限範囲を取得
-    const question = @json($location);
-    const latQ = parseFloat(question.lat);
-    const lngQ = parseFloat(question.lng);
+    const latQ = Number(@json($location->q_lat));
+    const lngQ = Number(@json($location->q_lng));
     const delta = {{ $delta }};
-    console.log(question);
     console.log("Question Location:", latQ, lngQ, delta);
 
     window.initMaps = function() {

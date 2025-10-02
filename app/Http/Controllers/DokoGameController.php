@@ -20,7 +20,12 @@ class DokoGameController extends Controller
 
     public function index()
     {
-        return view('doko_home');
+        $gameModes = GameMode::all();
+
+        return view('doko_home', [
+            'title' => 'Doko Game',
+            'gameModes' => $gameModes
+        ]);
     }
     
     public function show_mypage()
@@ -32,18 +37,21 @@ class DokoGameController extends Controller
             ->orderByDesc('result')
             ->first();
 
+        $gameModes = GameMode::all();
+
         return view('doko_mypage', [
             'title' => 'Doko Game',
             'user' => $user,
             'bestGame' => $bestGame,
+            'gameModes' => $gameModes,
         ]);
 
     }
 
-    public function start()
+    public function start(int $mode)
     {
-        // geme_mode: 1=デフォルト
-        $gameMode = GameMode::where('id', 1)->first();
+        // geme_mode: 1=デフォルト 2=日本
+        $gameMode = GameMode::where('id', $mode)->first();
 
         // 既存の進行中ゲームがあれば削除
         Game::where('user_id', Auth::id())
@@ -53,34 +61,38 @@ class DokoGameController extends Controller
         // 新しいゲームを準備
         $myGame = $this->dokoGameService->setGame($gameMode);
 
-        // ロケーションを取得
-        $location = $this->dokoGameService->getLocation($myGame->id, $myGame->progress);
+        // 出題地点を取得
+        $location = $this->dokoGameService->getLocation($myGame);
 
         return view('doko_answer', [
             'myGame' => $myGame,
             'location' => $location,
             'delta' => $gameMode->offset,
         ]);
-
     }
 
-    public function next()
+    public function next(Request $request)
     {
-        // geme_mode: 1=デフォルト
-        $gameMode = GameMode::where('id', 1)->first();
+        $gameId = $request->input('game_id');
+        $gameModeId = $request->input('game_mode_id');
+        $gameMode = GameMode::where('id', $gameModeId)->first();
 
-        // 現在進行中のゲームを取得
-        $myGame = Game::where('user_id', Auth::id())
-            ->where('game_mode_id', $gameMode->id)
-            ->where('progress', '!=', -1)
-            ->first();
+        $myGame = Game::where('id', $gameId)->first();
+        // 途中から再開の時などのゲーム取得処理
         if (!$myGame) {
-            // 進行中のゲームがない場合、直近の終了ゲームを取得
+            // 現在進行中のゲームを取得
             $myGame = Game::where('user_id', Auth::id())
                 ->where('game_mode_id', $gameMode->id)
-                ->where('progress', -1)
-                ->orderByDesc('updated_at')
+                ->where('progress', '!=', -1)
                 ->first();
+            if (!$myGame) {
+                // 進行中のゲームがない場合、直近の終了ゲームを取得
+                $myGame = Game::where('user_id', Auth::id())
+                    ->where('game_mode_id', $gameMode->id)
+                    ->where('progress', -1)
+                    ->orderByDesc('updated_at')
+                    ->first();
+            }
         }
         if (!$myGame) {
             // ゲームが存在しない場合
@@ -94,21 +106,24 @@ class DokoGameController extends Controller
                 ->where('game_id', $myGame->id)
                 ->get();
 
-
             // 自己ベストかどうかをチェックして更新
-            $myBestGameId = $this->dokoGameService->setMyBest($myGame->id);
-            $newRecord = ($myBestGameId == $myGame->id);
+            $myBestGame = $this->dokoGameService->setMyBest($myGame->id);
+            $newRecord = ($myBestGame->id == $myGame->id);
+
+            $maxScore = $gameMode->score_max * $gameMode->stage;
 
             return view('doko_result', [
                 'user'   => Auth::user(),
                 'myGame' => $myGame,
                 'logs'   => $logs,
                 'newRecord' => $newRecord,
+                'myBestScore' => $myBestGame->result,
+                'maxScore'  => $maxScore,
             ]);
         } elseif ($myGame->progress >= 1 && $myGame->progress <= $gameMode->stage) {
             // 次の問題へ進行
             // ロケーションを取得
-            $location = $this->dokoGameService->getLocation($myGame->id, $myGame->progress);
+            $location = $this->dokoGameService->getLocation($myGame);
 
             return view('doko_answer', [
                 'myGame' => $myGame,
@@ -130,30 +145,28 @@ class DokoGameController extends Controller
             return redirect()->route('doko.next');
         }
 
-        // geme_mode: 1=デフォルト
-        $gameMode = GameMode::where('id', 1)->first();
-        // 結果を記録
-        $result = $this->dokoGameService->setResult($gameMode, $gameId, $stage, $latA, $lngA);
+        // 対象のゲームを取得
+        $myGame = Game::where('id', $gameId)->where('user_id', Auth::id())->first();
 
-        $game_log = GameLog::with('location')
-            ->where('game_id', $gameId)
-            ->where('stage', $stage)
-            ->first();
+        if ($stage == $myGame->progress) {
+            // 結果を記録
+            $this->dokoGameService->setResult($gameId, $stage, $latA, $lngA);
 
-        // ゲームの進行度を更新
-        $game = Game::find($gameId);
-        if ($game_log->score !== null) {
-            if ($game->progress == $gameMode->stage) {
-                $game->progress = -1; // ゲーム終了
-            } elseif ($game->progress >= 1 && $game->progress < $gameMode->stage) {
-                $game->progress += 1;
+            // ゲームの進行度を更新
+            $gameMode = GameMode::where('id', $myGame->game_mode_id)->first();
+            if ($myGame->progress == $gameMode->stage) {
+                $myGame->progress = -1; // ゲーム終了
+            } elseif ($myGame->progress >= 1 && $myGame->progress < $gameMode->stage) {
+                $myGame->progress += 1;
             }
-            $game->save();
+            $myGame->save();
         }
 
+        $gameLog = GameLog::where('game_id', $gameId)->where('stage', $stage)->first();
+
         return view('doko_check', [
-            'gameLog'   => $game_log,
-            'totalScore'    => $result,
+            'myGame'     => $myGame,
+            'gameLog'   => $gameLog,
             'latA'     => $latA,
             'lngA'     => $lngA,
         ]);

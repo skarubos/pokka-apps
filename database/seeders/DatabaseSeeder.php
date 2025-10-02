@@ -6,6 +6,7 @@ use App\Models\MyApp;
 use App\Models\User;
 use App\Models\Game;
 use App\Models\GameLog;
+use App\Models\GameMode;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -38,6 +39,18 @@ class DatabaseSeeder extends Seeder
 
 
         // ----- DokoGame関連 -----
+        // game_modes テーブルに「日本限定モード」を追加
+        GameMode::create([
+            'name' => 'ランダム（日本限定）',
+            'stage' => 3,
+            'limit' => null,
+            'offset' => 0.02,
+            'score_max' => 1000,
+            'score_demerit' => true,
+            'score_reference' => 1000,
+            'map' => 'japan_only',
+        ]);
+
         // ユーザーを5件作成
         $users = User::factory(5)->create();
 

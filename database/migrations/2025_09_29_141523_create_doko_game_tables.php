@@ -25,7 +25,7 @@ return new class extends Migration
 
         // 初期game_modeを挿入
         DB::table('game_modes')->insert([
-            'name' => 'a',
+            'name' => '有名所（世界）',
         ]);
 
         // games テーブル
@@ -54,6 +54,10 @@ return new class extends Migration
                 ->cascadeOnDelete();     // onDelete('cascade')
             $table->unsignedInteger('stage');
             $table->unsignedInteger('location_id')->nullable();
+            $table->text('name')->nullable();
+            $table->text('country')->nullable();
+            $table->text('region')->nullable();
+            $table->text('sub_region')->nullable();
             $table->decimal('q_lat', 9, 7)->nullable();
             $table->decimal('q_lng', 10, 7)->nullable();
             $table->decimal('a_lat', 9, 7)->nullable();

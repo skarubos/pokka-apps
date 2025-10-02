@@ -11,15 +11,21 @@
     </div>
     <div class="flex-1">
         <div id="map" class="w-full h-full"></div>
-        <a href="{{ route('doko.next') }}" target="_self"
-            class="flex fixed right-5 top-1/2 -translate-y-1/2
-                items-center justify-center
-                w-25 h-40 rounded-xl cursor-pointer
-                text-white text-xl font-bold
-                hover:outline-3 outline-offset-3 outline-gray-800
-                bg-gray-800/90 hover:bg-gray-800 transition">
-            次へ
-        </a>
+        <!-- 「次へ」ボタン -->
+        <form method="POST" action="{{ route('doko.next') }}" class="">
+            @csrf
+            <input type="hidden" name="game_id" value="{{ $myGame->id }}">
+            <input type="hidden" name="game_mode_id" value="{{ $myGame->game_mode_id }}">
+            <button type="submit"
+                class="flex fixed right-5 top-1/2 -translate-y-1/2
+                    items-center justify-center
+                    w-25 h-40 rounded-xl cursor-pointer
+                    text-white text-xl font-bold
+                    hover:outline-3 outline-offset-3 outline-gray-800
+                    bg-gray-800/90 hover:bg-gray-800 transition">
+                次へ
+            </button>
+        </form>
     </div>
 @endsection
 
@@ -27,12 +33,12 @@
 <script>
     window.initMap = function() {
         // Bladeから渡された座標をJS変数に変換
-        const question = @json($gameLog->location);
-        const latQ = parseFloat(question.lat);
-        const lngQ = parseFloat(question.lng);
+        const latQ = Number(@json($gameLog->q_lat));
+        const lngQ = Number(@json($gameLog->q_lng));
         const latA = {{ $latA }};
         const lngA = {{ $lngA }};
         const distance = "{{ $gameLog->distance }} km";
+        console.log(latA, lngA, distance);
 
         const pointQ = { lat: latQ, lng: lngQ }; // 問題地点
         const pointA = { lat: latA, lng: lngA }; // 回答地点
