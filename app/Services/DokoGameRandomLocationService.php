@@ -6,11 +6,137 @@ use App\Models\User;
 use App\Models\Location;
 use App\Models\Game;
 use App\Models\GameLog;
+use App\Models\Mesh1km2020JapanMap;
+use App\Models\Prefecture;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class DokoGameRandomLocationService
 {
+    public function getWeitedLocationsInJapan(int $count): ?array
+    {
+        $prefectures = $this->getPrefectures($count, 1.0);
+        $meshes = $this->getWeightedRandomMeshes($prefectures);
+        dd($meshes);
+    }
+
+    /**
+     * 面積（または任意の数値カラム）に基づき重みづけされたランダム抽出
+     *
+     * @param int $count 抽出数（例: 5件）
+     * @param float $exponent 重みづけパラメータ
+     * @return array 選ばれた都道府県IDの配列
+     */
+    public function getPrefectures(int $count = 5, float $exponent = 1.0): array
+    {
+        $prefectures = Prefecture::all(['id', 'size']);
+
+        // size の値を exponent 乗して重みを計算
+        // exponent=1 → 値に比例
+        // exponent=0.5 → sqrt(size) に比例（差を弱める）
+        // exponent=2 → size^2 に比例（差を強める）
+        $weights = [];
+        foreach ($prefectures as $pref) {
+            $weights[$pref->id] = pow($pref->size, $exponent);
+        }
+
+        // 重みの合計を算出（ルーレット選択の基準となる）
+        $totalWeight = array_sum($weights);
+
+        // 選ばれたIDを格納する配列
+        $selected = [];
+
+        // 指定件数に達するまで繰り返す
+        while (count($selected) < $count) {
+            // 0〜totalWeight の範囲で乱数を生成
+            $rand = mt_rand() / mt_getrandmax() * $totalWeight;
+
+            // 累積和を使って「ルーレット選択」を実施
+            $cumulative = 0;
+            foreach ($weights as $id => $weight) {
+                $cumulative += $weight;
+
+                // 乱数が累積値を超えた時点でそのIDを選択
+                if ($rand <= $cumulative) {
+                    // すでに選ばれていなければ追加
+                    if (!in_array($id, $selected)) {
+                        $selected[] = $id;
+                    }
+                    break; // 1件選んだらループを抜ける
+                }
+            }
+        }
+
+        // 選ばれた都道府県IDの配列を返す
+        return $selected;
+    }
+
+    /**
+     * 指定された都道府県IDごとに、重み付きランダムで1件メッシュを取得する
+     *
+     * @param array $prefectureIds 都道府県IDの配列
+     * @return array 選ばれたレコードの配列
+     */
+    public function getWeightedRandomMeshes(array $prefectureIds): array
+    {
+        $results = [];
+
+        foreach ($prefectureIds as $prefId) {
+            // まず対象pref_idの最小値・最大値を取得
+            $stats = Mesh1km2020JapanMap::where('pref_id', $prefId)
+                ->selectRaw('MIN(ptn_2020) as min_val, MAX(ptn_2020) as max_val')
+                ->first();
+
+            if (!$stats || $stats->min_val === null || $stats->max_val === null) {
+                continue;
+            }
+
+            $min = (float) $stats->min_val;
+            $max = (float) $stats->max_val;
+            $range = max($max - $min, 1e-9); // 0除算回避
+
+            // 全件を取得すると重いので、idとptn_2020だけを取得
+            $rows = Mesh1km2020JapanMap::where('pref_id', $prefId)
+                ->select('id', 'pref_id', 'ptn_2020')
+                ->get();
+
+            if ($rows->isEmpty()) {
+                continue;
+            }
+
+            // 重みを計算（min→1, max→2）
+            $weights = [];
+            foreach ($rows as $row) {
+                $weights[$row->id] = 1.0 + (($row->ptn_2020 - $min) / $range);
+            }
+
+            $totalWeight = array_sum($weights);
+            $rand = mt_rand() / mt_getrandmax() * $totalWeight;
+
+            // ルーレット選択
+            $cumulative = 0;
+            $selectedId = null;
+            foreach ($weights as $id => $weight) {
+                $cumulative += $weight;
+                if ($rand <= $cumulative) {
+                    $selectedId = $id;
+                    break;
+                }
+            }
+
+            if ($selectedId) {
+                $record = Mesh1km2020JapanMap::where('id', $selectedId)
+                    ->first();
+                if ($record) {
+                    $results[] = $record;
+                }
+            }
+        }
+
+        return $results;
+    }
+
+
     /**
      * 指定した緯度経度がGeoJSON内のどの行政区に含まれるか判定する
      *
@@ -136,21 +262,6 @@ class DokoGameRandomLocationService
         $lat = mt_rand(2400000, 4600000) / 100000.0;
         $lng = mt_rand(12300000, 14600000) / 100000.0;
         return [$lat, $lng];
-    }
-
-    /**
-     * 指定された緯度経度が日本の陸地内にあるかどうかを判定
-     */
-    function isPointOnLand(float $lat, float $lng): bool {
-        // 日本のポリゴンを読み込み
-        $geojson = file_get_contents(storage_path('app/geo/japan.geojson'));
-        $japanPolygon = geoPHP::load($geojson, 'geojson');
-
-        // 点を作成
-        $point = geoPHP::load("POINT($lng $lat)", 'wkt');
-
-        // ポリゴン内かどうか判定
-        return $japanPolygon->contains($point);
     }
 
 

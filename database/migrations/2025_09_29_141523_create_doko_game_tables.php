@@ -17,7 +17,7 @@ return new class extends Migration
             $table->unsignedInteger('limit')->default(null)->nullable();
             $table->decimal('offset', 4, 3)->default(0.02);
             $table->integer('score_max')->default(1000);
-            $table->boolean('score_demerit')->default(false);
+            $table->boolean('score_demerit')->default(true);
             $table->integer('score_reference')->default(5000);
             $table->string('map')->nullable();
             $table->timestamps();

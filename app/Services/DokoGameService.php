@@ -60,8 +60,22 @@ class DokoGameService
                     ]);
                 }
             } elseif ($gameMode->id == 2) {
-                // game_mode: 2=日本
+                // game_mode: 2=日本(完全ランダム)
                 $locations = $this->randomLocationService->getLocationsInJapan($gameMode->stage);
+                foreach ($locations as $index => $loc) {
+                    GameLog::create([
+                        'game_id'     => $game->id,
+                        'stage'       => $index + 1,
+                        'country'     => "日本",
+                        'region'      => $loc['region'],
+                        'sub_region'  => $loc['sub_region'],
+                        'q_lat'         => $loc['lat'],
+                        'q_lng'         => $loc['lng'],
+                    ]);
+                }
+            } elseif ($gameMode->id == 3) {
+                // game_mode: 3=日本(重みづけランダム)
+                $locations = $this->randomLocationService->getWeitedLocationsInJapan($gameMode->stage);
                 foreach ($locations as $index => $loc) {
                     GameLog::create([
                         'game_id'     => $game->id,

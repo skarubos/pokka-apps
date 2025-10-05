@@ -7,25 +7,15 @@ use App\Models\GameLog;
 use App\Models\GameMode;
 use App\Models\MyApp;
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class DatabaseSeeder extends Seeder
+class DummySeeder extends Seeder
 {
     /**
-     * Seed the application's database.
+     * Run the database seeds.
      */
     public function run(): void
     {
-
-        
-        // $this->call(KeywordsTableSeeder::class);
-        // $this->call(LocationsTableSeeder::class);
-        // // $this->call(DummySeeder::class);
-        // $this->call(MeshMapSeeder::class);  // 数分かかる
-        // $this->call(PrefectureTableSeeder::class);
-        // $this->call(ShiCodeTableSeeder::class);
-
         // ----- MyApp関連 -----
         // MuAppsに10件作成（sort_orderは仮値0）
         MyApp::factory()->count(10)->create();
@@ -93,6 +83,5 @@ class DatabaseSeeder extends Seeder
                 }
             });
         });
-
     }
 }
