@@ -9,6 +9,8 @@ class GameMode extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     protected $fillable = [
         'name',
         'stage',

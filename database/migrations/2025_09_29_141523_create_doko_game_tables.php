@@ -20,13 +20,7 @@ return new class extends Migration
             $table->boolean('score_demerit')->default(true);
             $table->integer('score_reference')->default(5000);
             $table->string('map')->nullable();
-            $table->timestamps();
         });
-
-        // 初期game_modeを挿入
-        DB::table('game_modes')->insert([
-            'name' => '有名所（世界）',
-        ]);
 
         // games テーブル
         Schema::create('games', function (Blueprint $table) {
