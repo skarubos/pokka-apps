@@ -44,7 +44,7 @@ class DokoGameService
             ]);
 
             if ($gameMode->id == 1) {
-                // game_mode: 1=デフォルト
+                // game_mode: 1=世界（選定リストからランダム）
                 $locationId = Location::pluck('id')->random($gameMode->stage)->toArray();
                 foreach ($locationId as $index => $locId) {
                     $loc = Location::find($locId);
@@ -61,7 +61,7 @@ class DokoGameService
                 }
             } elseif ($gameMode->id == 2) {
                 // game_mode: 2=日本(完全ランダム)
-                $locations = $this->randomLocationService->getLocationsInJapan($gameMode->stage);
+                $locations = $this->randomLocationService->getRandomLocationsInJapan($gameMode->stage);
                 foreach ($locations as $index => $loc) {
                     GameLog::create([
                         'game_id'     => $game->id,
@@ -74,15 +74,15 @@ class DokoGameService
                     ]);
                 }
             } elseif ($gameMode->id == 3) {
-                // game_mode: 3=日本(重みづけランダム)
-                $locations = $this->randomLocationService->getWeitedLocationsInJapan($gameMode->stage);
+                // game_mode: 3=日本(人口あり重みづけランダム)
+                $locations = $this->randomLocationService->getWeightedRandomLocationsInJapan($gameMode->stage);
                 foreach ($locations as $index => $loc) {
                     GameLog::create([
                         'game_id'     => $game->id,
                         'stage'       => $index + 1,
                         'country'     => "日本",
-                        'region'      => $loc['region'],
-                        'sub_region'  => $loc['sub_region'],
+                        'region'      => $loc['pref_name'],
+                        'sub_region'  => $loc['shi_name'],
                         'q_lat'         => $loc['lat'],
                         'q_lng'         => $loc['lng'],
                     ]);

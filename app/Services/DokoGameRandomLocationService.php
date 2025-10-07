@@ -8,16 +8,33 @@ use App\Models\Game;
 use App\Models\GameLog;
 use App\Models\Mesh1km2020JapanMap;
 use App\Models\Prefecture;
+use App\Models\ShiCode;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class DokoGameRandomLocationService
 {
-    public function getWeitedLocationsInJapan(int $count): ?array
+    /** === Mode: 3 === */
+
+    /**
+     * 日本全国（人口あり）の地点を重みづけありでランダムに取得
+     *
+     * @param int $count 取得する地点の数(ステージ数)
+     * @return array 取得した地点の配列
+     */
+    public function getWeightedRandomLocationsInJapan(int $count): array
     {
+        // 都道府県を重み付きで取得
         $prefectures = $this->getPrefectures($count, 1.0);
+
+        // メッシュ単位でランダムに選定
         $meshes = $this->getWeightedRandomMeshes($prefectures);
-        dd($meshes);
+
+        // メッシュから座標を抽出
+        $points = $this->getRandomLocationsFromMeshes($meshes);
+
+        // 座標に地名情報を付加
+        return $this->addLocationInfo($points);
     }
 
     /**
@@ -136,14 +153,86 @@ class DokoGameRandomLocationService
         return $results;
     }
 
+    /**
+     * getWeightedRandomMeshes() の結果を受け取り、
+     * 各メッシュの緯度経度範囲からランダムに1点を選ぶ
+     *
+     * @param array $meshes getWeightedRandomMeshes() の返却配列
+     * @return array 各メッシュごとに選ばれた緯度経度の配列
+     */
+    public function getRandomLocationsFromMeshes(array $meshes): array
+    {
+        $points = [];
+
+        foreach ($meshes as $mesh) {
+            // 緯度を min_lat〜max_lat の範囲でランダムに選ぶ
+            $lat = $this->randomFloatInRange((float)$mesh->min_lat, (float)$mesh->max_lat, 4);
+
+            // 経度を min_lng〜max_lng の範囲でランダムに選ぶ
+            $lng = $this->randomFloatInRange((float)$mesh->min_lng, (float)$mesh->max_lng, 4);
+
+            $points[] = [
+                'mesh_id' => $mesh->mesh_id,
+                'pref_id' => $mesh->pref_id,
+                'shicode' => $mesh->shicode,
+                'population' => $mesh->ptn_2020,
+                'lat'     => $lat,
+                'lng'     => $lng,
+            ];
+        }
+
+        return $points;
+    }
+
+    /**
+     * 指定範囲内でランダムな浮動小数点数を生成（小数点以下 $precision 桁）
+     */
+    private function randomFloatInRange(float $min, float $max, int $precision = 4): float
+    {
+        $scale = pow(10, $precision);
+        return mt_rand((int)($min * $scale), (int)($max * $scale)) / $scale;
+    }
+
+    /**
+     * 都道府県名・市区町村名をロケーション情報に付与
+     *
+     * @param array $points メッシュの情報の配列
+     * @return array ロケーション情報の配列
+     */
+    public function addLocationInfo(array $points): array
+    {
+        $prefectures = Prefecture::all()->keyBy('id');
+        $shicodes = ShiCode::all()->keyBy('code');
+
+        $locations = [];
+        foreach ($points as $point) {
+            $shicode_head = explode('_', $point['shicode'])[0]; // 先頭の市コードを抽出
+
+            $locations[] = [
+                'mesh_id' => $point['mesh_id'],
+                'pref_id' => $point['pref_id'],
+                'pref_name' => $prefectures[$point['pref_id']]->name ?? null,
+                'shicode' => $point['shicode'],
+                'shi_name' => $shicodes[(int)$shicode_head]->city ?? null,
+                'lat'     => $point['lat'],
+                'lng'     => $point['lng'],
+                'population' => $point['population'],
+            ];
+        }
+        return $locations;
+    }
+
+
+
+    /** === Mode: 2 === */
 
     /**
      * 指定した緯度経度がGeoJSON内のどの行政区に含まれるか判定する
      *
      * @param int $count 取得する地点の数(ステージ数)
-     * @return array|null 取得した地点の配列
+     * @return array 取得した地点の配列
      */
-    public function getLocationsInJapan(int $count): ?array
+    public function getRandomLocationsInJapan(int $count): array
     {
         // GeoJSONファイルを読み込み
         $path = storage_path('app\geo\gadm41_JPN_2.geojson');
@@ -265,6 +354,8 @@ class DokoGameRandomLocationService
     }
 
 
+
+    /** === Mode: 1 === */
 
     /**
      * 指定されたゲーム・ステージのロケーションを返す

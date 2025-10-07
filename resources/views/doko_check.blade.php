@@ -3,7 +3,7 @@
 @section('content')
     <div class="items-end text-center text-2xl py-6">
         <div class="inline-flex py-1 px-6 mr-10 bg-gray-700 rounded-full">
-            <p class="">Stage:<span class="text-3xl font-bold"> {{ $gameLog->stage }} </span>/ 5</p>
+            <p class="">Stage:<span class="text-3xl font-bold"> {{ $gameLog->stage }} </span>/ {{ $myGame->gameMode->stage }}</p>
         </div>
         <p class="inline-flex text-5xl text-white font-bold">{{ $gameLog->score }}</p>
         <p class="inline-flex px-3"> / 1000 点</p>

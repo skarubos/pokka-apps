@@ -77,18 +77,17 @@ class DokoGameController extends Controller
         $gameModeId = $request->input('game_mode_id');
         $gameMode = GameMode::where('id', $gameModeId)->first();
 
-        $myGame = Game::where('id', $gameId)->first();
+        $myGame = Game::with('gameMode')->where('id', $gameId)->first();
         // 途中から再開の時などのゲーム取得処理
         if (!$myGame) {
             // 現在進行中のゲームを取得
             $myGame = Game::where('user_id', Auth::id())
-                ->where('game_mode_id', $gameMode->id)
                 ->where('progress', '!=', -1)
                 ->first();
             if (!$myGame) {
                 // 進行中のゲームがない場合、直近の終了ゲームを取得
-                $myGame = Game::where('user_id', Auth::id())
-                    ->where('game_mode_id', $gameMode->id)
+                $myGame = Game::with('gameMode')
+                    ->where('user_id', Auth::id())
                     ->where('progress', -1)
                     ->orderByDesc('updated_at')
                     ->first();
@@ -97,14 +96,14 @@ class DokoGameController extends Controller
         if (!$myGame) {
             // ゲームが存在しない場合
             return redirect()->route('doko.mypage');
+        } else {
+            $gameMode = GameMode::where('id',  $myGame->game_mode_id)->first();
         }
 
         if ($myGame->progress == -1) {
             // progress が -1 なら結果ページへ
             // ゲームに属するログを取得
-            $logs = GameLog::with('location')
-                ->where('game_id', $myGame->id)
-                ->get();
+            $logs = GameLog::where('game_id', $myGame->id)->get();
 
             // 自己ベストかどうかをチェックして更新
             $myBestGame = $this->dokoGameService->setMyBest($myGame->id);
@@ -146,7 +145,7 @@ class DokoGameController extends Controller
         }
 
         // 対象のゲームを取得
-        $myGame = Game::where('id', $gameId)->where('user_id', Auth::id())->first();
+        $myGame = Game::with('gameMode')->where('id', $gameId)->where('user_id', Auth::id())->first();
 
         if ($stage == $myGame->progress) {
             // 結果を記録

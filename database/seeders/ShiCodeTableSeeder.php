@@ -22,9 +22,11 @@ class ShiCodeTableSeeder extends Seeder
         $file = fopen($path, 'r');
 
         while (($row = fgetcsv($file)) !== false) {
-            // CSVの列順: id, name, size
+            $originalCode = $row[0];
+            // 末尾1文字を削除（例: "131016" → "13101"）
+            $trimmedCode = substr($originalCode, 0, -1);
             DB::table('shi_codes')->insert([
-                'code'      => (int) $row[0],
+                'code'      => (int) $trimmedCode,
                 'pref'      => $row[1],
                 'city'      => $row[2],
                 'pref_kana' => $row[3],

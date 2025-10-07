@@ -22,7 +22,7 @@
         @endif
     </div>
 
-    <div class="text-2xl">
+    <div class="text-xl font-bold">
         <h2 class="text-center text-2xl font-bold mb-6">マップの種類を選択して開始</h2>
         <div class="flex justify-center space-x-6 mb-6">
             @foreach ($gameModes as $mode)
@@ -31,19 +31,24 @@
                         w-64 h-20 rounded-xl cursor-pointer
                         bg-white/30 hover:bg-white/50
                         hover:outline-3 outline-offset-3 outline-white/50">
-                    <span class="text-xl font-bold">
+                    <span class="">
                         {{ $mode->name }}
                     </span>
                 </a>
             @endforeach
         </div>
-        <a href="{{ route('doko.next') }}" 
-            class="flex items-center m-auto justify-center
+        <form method="POST" action="{{ route('doko.next') }}" class="">
+            @csrf
+            <input type="hidden" name="game_id" value="">
+            <input type="hidden" name="game_mode_id" value="">
+            <button type="submit"
+                class="flex items-center m-auto justify-center
                 w-64 h-20 rounded-xl cursor-pointer
                 bg-white/30 hover:bg-white/50
                 hover:outline-3 outline-offset-3 outline-white/50">
-            再開
-        </a>
+                再開
+            </button>
+        </form>
         
     </div>
 @endsection
