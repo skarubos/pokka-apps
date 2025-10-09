@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use geoPHP;
 use App\Models\User;
 use App\Models\Location;
 use App\Models\Game;
@@ -75,7 +74,7 @@ class DokoGameService
                 }
             } elseif ($gameMode->id == 3) {
                 // game_mode: 3=日本(人口あり重みづけランダム)
-                $locations = $this->randomLocationService->getWeightedRandomLocationsInJapan($gameMode->stage);
+                $locations = $this->randomLocationService->getRandomWeightedLocationsInJapan($gameMode->stage);
                 foreach ($locations as $index => $loc) {
                     GameLog::create([
                         'game_id'     => $game->id,
@@ -83,6 +82,18 @@ class DokoGameService
                         'country'     => "日本",
                         'region'      => $loc['pref_name'],
                         'sub_region'  => $loc['shi_name'],
+                        'q_lat'         => $loc['lat'],
+                        'q_lng'         => $loc['lng'],
+                    ]);
+                }
+            } elseif ($gameMode->id == 4) {
+                // game_mode: 3=世界(人口密集地：重みづけランダム)
+                $locations = $this->randomLocationService->getRandomWeightedPopulatedLocations($gameMode->stage);
+                foreach ($locations as $index => $loc) {
+                    GameLog::create([
+                        'game_id'     => $game->id,
+                        'stage'       => $index + 1,
+                        'country'     => $loc['country_name'],
                         'q_lat'         => $loc['lat'],
                         'q_lng'         => $loc['lng'],
                     ]);

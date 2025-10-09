@@ -2,18 +2,141 @@
 
 namespace App\Services;
 
-use App\Models\User;
+use App\Models\Country;
 use App\Models\Location;
-use App\Models\Game;
 use App\Models\GameLog;
 use App\Models\Mesh1km2020JapanMap;
+use App\Models\Mesh1km2020WorldAbove10000Map;
 use App\Models\Prefecture;
 use App\Models\ShiCode;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class DokoGameRandomLocationService
 {
+    /** === Mode: 4 === */
+
+    /**
+     * 世界の地点（人口密集地）を国ごとの重みづけありでランダムに地点を取得
+     *
+     * @param int $count 取得する地点の数(ステージ数)
+     * @return array 取得した地点の配列
+     */
+    public function getRandomWeightedPopulatedLocations(int $count): array
+    {
+        // 国を重みづけありで取得
+        $table_name = 'mesh_1km_2020_world_above10000_maps';
+        $column_get = 'country_id';
+        $column_weight = 'size';
+        $countries = $this->getWeightedRegions($count, 0.2, $table_name, $column_get, $column_weight);
+dd($countries);
+        // Regionを指定してランダムに地点を取得
+        $points = $this->getRandomLocationsInRegion($countries);
+
+        // 座標に国名情報を付加
+        return $this->addCountryName($points);
+    }
+
+    /**
+     * 任意の数値カラムに基づき重みづけありでRegionをランダム抽出
+     *
+     * @param int $count 抽出数
+     * @param float $exponent 重みづけパラメータ
+     * @param string $table_name テーブル名
+     * @param string $column_get 取得するカラム名
+     * @param string $column_weight 重みを計算するカラム名
+     * @return array 選ばれたRegionのIDの配列
+     */
+    public function getWeightedRegions(int $count = 5, float $exponent = 1.0, string $table_name, string $column_get, string $column_weight): array
+    {
+        $data = DB::table($table_name)->select($column_get, $column_weight)->get();
+
+        // $column_weight カラムの値を exponent 乗して重みを計算
+        // exponent=1 → 値に比例
+        // exponent=0.5 → sqrt($column_weight) に比例（差を弱める）
+        // exponent=2 → $column_weight^2 に比例（差を強める）
+        $weights = [];
+        foreach ($data as $rec) {
+            $weights[$rec->$column_get] = pow($rec->$column_weight, $exponent);
+        }
+
+        // 重みの合計を算出（ルーレット選択の基準となる）
+        $totalWeight = array_sum($weights);
+
+        // 選ばれたIDを格納する配列
+        $selected = [];
+
+        // 指定件数に達するまで繰り返す
+        while (count($selected) < $count) {
+            // 0〜totalWeight の範囲で乱数を生成
+            $rand = mt_rand() / mt_getrandmax() * $totalWeight;
+
+            // 累積和を使って「ルーレット選択」を実施
+            $cumulative = 0;
+            foreach ($weights as $id => $weight) {
+                $cumulative += $weight;
+
+                // 乱数が累積値を超えた時点でそのIDを選択
+                if ($rand <= $cumulative) {
+                    // すでに選ばれていなければ追加
+                    if (!in_array($id, $selected)) {
+                        $selected[] = $id;
+                    }
+                    break; // 1件選んだらループを抜ける
+                }
+            }
+        }
+
+        // 選ばれたIDの配列を返す
+        return $selected;
+    }
+
+    /**
+     * RegionのID配列からランダムに地点を取得
+     *
+     * @param array $regionIds RegionのIDの配列
+     * @return array ランダムに取得された地点の配列
+     */
+    public function getRandomLocationsInRegion(array $regionIds) {
+        $points = [];
+        foreach ($regionIds as $regionId) {
+            $count = Mesh1km2020WorldAbove10000Map::where('country_id', $regionId)->count();
+            $randomOffset = rand(0, $count - 1);
+
+            $points[] = Mesh1km2020WorldAbove10000Map::where('country_id', $regionId)
+                ->skip($randomOffset)
+                ->first();
+        }
+        return $points;
+    }
+
+    /**
+     * 国名をロケーション情報に付与
+     *
+     * @param array $points メッシュの情報の配列
+     * @return array ロケーション情報の配列
+     */
+    public function addCountryName(array $points): array
+    {
+        $countries = Country::where('size' , '>', 0)->get()->keyBy('id');
+
+        $locations = [];
+        foreach ($points as $point) {
+            $shicode_head = explode('_', $point['shicode'])[0]; // 先頭の市コードを抽出
+
+            $locations[] = [
+                'country_id' => $point['coutnry_id'],
+                'country_name' => $countries[$point['country_id']]->country_name ?? null,
+                'lat'     => $point['lat'],
+                'lng'     => $point['ing'],
+                'population' => $point['population'],
+            ];
+        }
+        return $locations;
+    }
+
+
+
     /** === Mode: 3 === */
 
     /**
@@ -22,7 +145,7 @@ class DokoGameRandomLocationService
      * @param int $count 取得する地点の数(ステージ数)
      * @return array 取得した地点の配列
      */
-    public function getWeightedRandomLocationsInJapan(int $count): array
+    public function getRandomWeightedLocationsInJapan(int $count): array
     {
         // 都道府県を重み付きで取得
         $prefectures = $this->getPrefectures($count, 1.0);

@@ -11,6 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::create('countries', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedsmallInteger('country_id');
+            $table->string('country_code', 3); // 国名コード(JPNなど)
+            $table->string('name', 30);
+        });
+
         Schema::create('prefectures', function (Blueprint $table) {
             $table->unsignedTinyInteger('id')->primary(); // 都道府県ID（1〜47）
             $table->string('name', 50); // 都道府県名
@@ -32,6 +39,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('countries');
         Schema::dropIfExists('prefectures');
         Schema::dropIfExists('shi_codes');
     }

@@ -22,7 +22,8 @@ class DatabaseSeeder extends Seeder
         $this->call(KeywordsTableSeeder::class);
         $this->call(LocationsTableSeeder::class);
         // $this->call(DummySeeder::class);
-        $this->call(MeshMapSeeder::class);  // 数分かかる
+        $this->call(MeshMapJapanSeeder::class);
+        $this->call(MeshMapWorld10000Seeder::class);
         $this->call(PrefectureTableSeeder::class);
         $this->call(ShiCodeTableSeeder::class);
 
@@ -68,7 +69,17 @@ class DatabaseSeeder extends Seeder
                 'score_demerit' => true,
                 'score_reference' => 1000,
                 'map' => 'japan_weighted',
-            ]
+            ],
+            [
+                'name' => '世界（人口密集地：ランダム）',
+                'stage' => 3,
+                'limit' => null,
+                'offset' => 0.02,
+                'score_max' => 1000,
+                'score_demerit' => true,
+                'score_reference' => 5000,
+                'map' => 'world_above10000',
+            ],
         ]);
 
 

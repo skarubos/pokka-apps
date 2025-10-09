@@ -48,6 +48,8 @@
                                 {{ $log->region }} {{ $log->sub_region }}
                             @elseif($myGame->game_mode_id == 3)
                                 {{ $log->region }} {{ $log->sub_region }}
+                            @elseif($myGame->game_mode_id == 4)
+                                {{ $log->country_name }}
                             @endif
                         </td>
                         <td class="border-2 border-gray-600 px-4 py-2 text-center">
