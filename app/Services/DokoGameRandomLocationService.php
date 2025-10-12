@@ -25,11 +25,11 @@ class DokoGameRandomLocationService
     public function getRandomWeightedPopulatedLocations(int $count): array
     {
         // 国を重みづけありで取得
-        $table_name = 'mesh_1km_2020_world_above10000_maps';
+        $table_name = 'countries';
         $column_get = 'country_id';
-        $column_weight = 'size';
+        $column_weight = 'above_10000';
         $countries = $this->getWeightedRegions($count, 0.2, $table_name, $column_get, $column_weight);
-dd($countries);
+
         // Regionを指定してランダムに地点を取得
         $points = $this->getRandomLocationsInRegion($countries);
 
@@ -92,10 +92,10 @@ dd($countries);
     }
 
     /**
-     * RegionのID配列からランダムに地点を取得
+     * RegionのID配列からランダムに地点をコレクション型で取得
      *
      * @param array $regionIds RegionのIDの配列
-     * @return array ランダムに取得された地点の配列
+     * @return array ランダムに取得された地点のコレクション
      */
     public function getRandomLocationsInRegion(array $regionIds) {
         $points = [];
@@ -113,23 +113,21 @@ dd($countries);
     /**
      * 国名をロケーション情報に付与
      *
-     * @param array $points メッシュの情報の配列
-     * @return array ロケーション情報の配列
+     * @param array $points 地点情報の配列
+     * @return array 国名付きの地点情報の配列
      */
     public function addCountryName(array $points): array
     {
-        $countries = Country::where('size' , '>', 0)->get()->keyBy('id');
+        $countries = Country::where('above_10000' , '>', 0)->get()->keyBy('country_id');
 
         $locations = [];
         foreach ($points as $point) {
-            $shicode_head = explode('_', $point['shicode'])[0]; // 先頭の市コードを抽出
-
             $locations[] = [
-                'country_id' => $point['coutnry_id'],
-                'country_name' => $countries[$point['country_id']]->country_name ?? null,
-                'lat'     => $point['lat'],
-                'lng'     => $point['ing'],
-                'population' => $point['population'],
+                'country_id'    => $point->country_id,
+                'country_name'  => $countries[$point->country_id]->name ?? null,
+                'lat'           => $point->lat,
+                'lng'           => $point->lng,
+                'population'    => $point->population,
             ];
         }
         return $locations;
