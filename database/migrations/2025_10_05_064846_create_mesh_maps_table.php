@@ -30,6 +30,14 @@ return new class extends Migration
             $table->decimal('lng', 7, 4);
             $table->unsignedMediumInteger('population');
         });
+
+        Schema::create('mesh_1km_2020_world_5000to10000_maps', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedsmallInteger('country_id');
+            $table->decimal('lat', 6, 4);
+            $table->decimal('lng', 7, 4);
+            $table->unsignedMediumInteger('population');
+        });
     }
 
     /**
@@ -39,5 +47,6 @@ return new class extends Migration
     {
         Schema::dropIfExists('mesh_1km_2020_japan_maps');
         Schema::dropIfExists('mesh_1km_2020_world_above10000_maps');
+        Schema::dropIfExists('mesh_1km_2020_world_above5000_maps');
     }
 };

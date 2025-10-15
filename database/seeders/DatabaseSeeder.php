@@ -47,6 +47,12 @@ class DatabaseSeeder extends Seeder
         if (!DB::table('mesh_1km_2020_world_above10000_maps')->exists()) {
             $this->call(MeshMapWorld10000Seeder::class);
         }
+        if (!DB::table('mesh_1km_2020_world_5000to10000_maps')->exists()) {
+            $this->call(MeshMapWorld5000Seeder::class);
+        }
+        if (!DB::table('countries')->exists()) {
+            $this->call(CountryTableSeeder::class);
+        }
         if (!DB::table('prefectures')->exists()) {
             $this->call(PrefectureTableSeeder::class);
         }

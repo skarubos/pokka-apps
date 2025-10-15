@@ -14,8 +14,10 @@ return new class extends Migration
         Schema::create('countries', function (Blueprint $table) {
             $table->id();
             $table->unsignedsmallInteger('country_id');
-            $table->string('country_code', 3); // 国名コード(JPNなど)
+            // $table->string('country_code', 3); // 国名コード(JPNなど)
             $table->string('name', 30);
+            $table->unsignedInteger('above10000');
+            $table->unsignedInteger('5000to10000');
         });
 
         Schema::create('prefectures', function (Blueprint $table) {

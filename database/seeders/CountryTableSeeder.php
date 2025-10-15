@@ -30,7 +30,8 @@ class CountryTableSeeder extends Seeder
                 $batch[] = [
                     'country_id'   => (int) $row[0],
                     'name' => $row[2],
-                    'above_10000' => (int) $row[3],
+                    'above10000' => (int) $row[3],
+                    '5000to10000' => (int) $row[4],
                 ];
 
                 if (count($batch) >= $batchSize) {

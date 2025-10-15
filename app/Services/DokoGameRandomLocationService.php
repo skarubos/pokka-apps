@@ -6,7 +6,6 @@ use App\Models\Country;
 use App\Models\Location;
 use App\Models\GameLog;
 use App\Models\Mesh1km2020JapanMap;
-use App\Models\Mesh1km2020WorldAbove10000Map;
 use App\Models\Prefecture;
 use App\Models\ShiCode;
 use Illuminate\Support\Facades\Auth;
@@ -25,16 +24,26 @@ class DokoGameRandomLocationService
     public function getRandomWeightedPopulatedLocations(int $count): array
     {
         // 国を重みづけありで取得
+        // 人口密度「10000人以上」と「5000〜10000人」を少なくとも1つずつ含めるようにランダム個数取得
+        $randomNum = random_int(1, $count - 1);
         $table_name = 'countries';
         $column_get = 'country_id';
-        $column_weight = 'above_10000';
-        $countries = $this->getWeightedRegions($count, 0.2, $table_name, $column_get, $column_weight);
+
+        $column_weight = 'above10000';
+        $arr_above10000 = $this->getWeightedRegions($randomNum, 0.2, $table_name, $column_get, $column_weight);
+        $column_weight = '5000to10000';
+        $arr_5000to10000 = $this->getWeightedRegions($count - $randomNum, 0.3, $table_name, $column_get, $column_weight);
+
+        $countries = array_merge($arr_above10000, $arr_5000to10000);
+        shuffle($countries);
 
         // Regionを指定してランダムに地点を取得
         $points = $this->getRandomLocationsInRegion($countries);
 
         // 座標に国名情報を付加
-        return $this->addCountryName($points);
+        $result = $this->addCountryName($points);
+// dd($countries, $points, $result);
+        return $result;
     }
 
     /**
@@ -45,7 +54,7 @@ class DokoGameRandomLocationService
      * @param string $table_name テーブル名
      * @param string $column_get 取得するカラム名
      * @param string $column_weight 重みを計算するカラム名
-     * @return array 選ばれたRegionのIDの配列
+     * @return array 選ばれたRegionのID,カラム名を持つ連想配列の配列
      */
     public function getWeightedRegions(int $count = 5, float $exponent = 1.0, string $table_name, string $column_get, string $column_weight): array
     {
@@ -63,7 +72,7 @@ class DokoGameRandomLocationService
         // 重みの合計を算出（ルーレット選択の基準となる）
         $totalWeight = array_sum($weights);
 
-        // 選ばれたIDを格納する配列
+        // 選ばれたIDを格納する連想配列
         $selected = [];
 
         // 指定件数に達するまで繰り返す
@@ -80,7 +89,10 @@ class DokoGameRandomLocationService
                 if ($rand <= $cumulative) {
                     // すでに選ばれていなければ追加
                     if (!in_array($id, $selected)) {
-                        $selected[] = $id;
+                        $selected[] = [
+                            'id' => $id,
+                            'column' => $column_weight,
+                        ];
                     }
                     break; // 1件選んだらループを抜ける
                 }
@@ -92,18 +104,22 @@ class DokoGameRandomLocationService
     }
 
     /**
-     * RegionのID配列からランダムに地点をコレクション型で取得
+     * Regionの配列からランダムに地点をコレクション型で取得
      *
-     * @param array $regionIds RegionのIDの配列
+     * @param array $regions RegionのIDと指定カラム名の連想配列の配列
      * @return array ランダムに取得された地点のコレクション
      */
-    public function getRandomLocationsInRegion(array $regionIds) {
+    public function getRandomLocationsInRegion(array $regions) {
         $points = [];
-        foreach ($regionIds as $regionId) {
-            $count = Mesh1km2020WorldAbove10000Map::where('country_id', $regionId)->count();
+        foreach ($regions as $region) {
+            $tabel_name = 'mesh_1km_2020_world_' . $region['column'] . '_maps';
+            $count = DB::table($tabel_name)
+                ->where('country_id', $region['id'])
+                ->count();
             $randomOffset = rand(0, $count - 1);
 
-            $points[] = Mesh1km2020WorldAbove10000Map::where('country_id', $regionId)
+            $points[] = DB::table($tabel_name)
+                ->where('country_id', $region['id'])
                 ->skip($randomOffset)
                 ->first();
         }
@@ -118,7 +134,12 @@ class DokoGameRandomLocationService
      */
     public function addCountryName(array $points): array
     {
-        $countries = Country::where('above_10000' , '>', 0)->get()->keyBy('country_id');
+        $countries = Country::where(function ($query) {
+                $query->where('above10000', '>', 0)
+                    ->orWhere('5000to10000', '>', 0);
+            })
+            ->get()
+            ->keyBy('country_id');
 
         $locations = [];
         foreach ($points as $point) {
